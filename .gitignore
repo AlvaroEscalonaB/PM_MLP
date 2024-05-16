@@ -1,1 +1,5 @@
 env/
+__pycache__/
+data/*.csv
+data/*.parquet
+data/*.py
