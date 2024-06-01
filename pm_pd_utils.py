@@ -70,7 +70,7 @@ def process_event_log(event_log: EventLog) -> Tuple[Counter, Counter]:
   return (performance_dfg, dfg_frequency)
 
 def initial_dataframe_analysis(df: pd.DataFrame, with_dfg: bool = False) -> Tuple[EventLog, Counter | None, Counter | None]:
-  df_formed = pm4py.format_dataframe(df, case_id='case_id', activity_key='activity', timestamp_key='timestamp')
+  df_formed = pm4py.format_dataframe(df.copy(), case_id='case_id', activity_key='activity', timestamp_key='timestamp')
   event_log = pm4py.convert_to_event_log(df_formed)
   # See the traces repetitions
   performance_dfg, dfg_frequency = None, None
