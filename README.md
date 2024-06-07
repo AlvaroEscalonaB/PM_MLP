@@ -29,6 +29,13 @@ import sys
 sys.path.append('/content/drive/MyDrive') # must be the path where the .py file is
 ```
 
+### Conventions
+
+To save `.csv` or `.parquet`, this should be in the `/data` folder and follow the next conditions
+
+- If is an event log with pandas then the file name should have the following format `<NAME>_log.csv`
+- If is a summary of events then should have the next format `<NAME>_summary.csv`
+
 ### Other utilities
 
 `pm4py` has some old dependencies and raise some warnings, to supress all:
