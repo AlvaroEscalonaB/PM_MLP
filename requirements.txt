@@ -22,6 +22,7 @@ kiwisolver==1.4.5
 lxml==5.2.1
 matplotlib==3.8.4
 matplotlib-inline==0.1.7
+mpdfg==0.0.3
 nest-asyncio==1.6.0
 networkx==3.3
 numpy==1.26.4
