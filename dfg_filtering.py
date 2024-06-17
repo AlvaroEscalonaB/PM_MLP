@@ -14,7 +14,7 @@ def format_dfg_to_dataframe(dfg: dict[tuple[str, str], dict[str, int]]) -> pd.Da
 
 def handle_negatives_times(df_connections: pd.DataFrame) -> pd.DataFrame:
   """
-    Swaps the conections that have a negative time difference
+    Swaps the connections that have a negative time difference
   """
   validate_necessary_pandas_columns(df_connections, ['origin', 'destination', 'frequency', 'time'])
 
@@ -65,6 +65,7 @@ def squeeze_consecutive_activities(df_log: pd.DataFrame) -> pd.DataFrame:
   df_log['dummy_group'] = (df_log['activity'] != df_log['activity'].shift()).cumsum()
 
   df_squeezed = df_log.groupby('dummy_group').agg({
+      'case_id':       'first',
       'activity':      'first',
       'timestamp':     'min',
       'timestamp_end': 'max'
@@ -97,11 +98,9 @@ def validate_necessary_pandas_columns(df: pd.DataFrame, columns: list[str] | str
   """
   match type(columns):
     case builtins.str:
-      print('Is a string')
       if not columns in df.columns:
         AttributeValidation(f'"{columns}" is not in {df.columns.tolist()}')
     case builtins.list:
-      print('Is a list')
       columns_difference = set(columns).difference(set(df.columns))
       if not len(columns_difference) == 0:
         AttributeValidation(f'"{columns_difference}" are not in {df.columns.tolist()}')
@@ -110,5 +109,3 @@ class AttributeValidation(Exception):
   def __init__(self, message, errors):            
     super().__init__(message)
     self.errors = errors
-
-print('Hola gente')
