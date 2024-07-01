@@ -49,4 +49,14 @@ If you add another dependency after that please run
 
 `pip freeze -l > requirements.txt`
 
-this is for track the new package added
+this is for track new packages added
+
+### Shared files
+
+- `event_log_integrity.py`: File to calculate two metrics, how overlapped and how contained are the activities if these contains `timestamp` and `timestamp_end`
+
+- `custom_errors.py`: For better debugging, there are some validations used in other `.py` and `.ipynb`
+
+- `pm_pd_utils.py`: For functions to handle event log shaped dataframe, also for dfg
+
+- `dfg_filtering.py`: To filter dfg and dataframes generated from `pm4py` or `mpdfg` packages.
