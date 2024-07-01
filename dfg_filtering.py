@@ -1,6 +1,6 @@
-import builtins
 import pandas as pd
 import numpy as np
+from custom_errors import validate_necessary_pandas_columns
 
 def format_dfg_to_dataframe(dfg: dict[tuple[str, str], dict[str, int]]) -> pd.DataFrame:
   """
@@ -28,7 +28,7 @@ def handle_negatives_times(df_connections: pd.DataFrame) -> pd.DataFrame:
   df_resumed = df_sorted.groupby(['origin', 'destination']).agg({'frequency': 'sum', 'total_time': 'sum'})
   df_resumed['time'] = df_resumed['total_time'] / df_resumed['frequency']
   df_resumed = df_resumed.drop(columns=['total_time'])
-  print(f'Total rows {df_resumed.shape[0]}. Filtered a total of {total_rows_before - df_resumed.shape[0]} rows')
+  print(f'Total rows {df_resumed.shape[0]}. Filtered a total of {total_rows_before - df_resumed.shape[0]} rows in "handle_negatives_times"')
   return df_sorted
 
 
@@ -57,24 +57,6 @@ def generate_filtered_dfg_dict(df: pd.DataFrame) -> dict:
   return { (record['origin'], record['destination']): {'frequency': record['frequency'], 'time': record['time']} for record in records }
 
 
-def squeeze_consecutive_activities(df_log: pd.DataFrame) -> pd.DataFrame:
-  """
-    Gather the consecutive activities into one keeping the information of the first record
-  """
-  validate_necessary_pandas_columns(df_log, ['case_id', 'activity', 'timestamp', 'timestamp_end'])
-  df_log['dummy_group'] = (df_log['activity'] != df_log['activity'].shift()).cumsum()
-
-  df_squeezed = df_log.groupby('dummy_group').agg({
-      'case_id':       'first',
-      'activity':      'first',
-      'timestamp':     'min',
-      'timestamp_end': 'max'
-  }).reset_index(drop=True)
-
-  # TODO: Also keep the record of the other columns
-  return df_squeezed.drop(columns=['dummy_group'])
-
-
 def remove_not_connected_activities(dfg: dict) -> pd.DataFrame:
   dfg_copy = dfg.copy()
   connections = np.ndarray([*dfg['connections'].keys()]).flat()
@@ -85,27 +67,19 @@ def remove_not_connected_activities(dfg: dict) -> pd.DataFrame:
 def filter_start_and_end_activities(dfg, start_activities, end_activities) -> tuple[dict, dict]:
   """
     Filter the start and end activities dict variables according to dfg connections
-  """
+  """ 
   unique_activities = pd.Series(sum([list(i) for i in dfg['connections'].keys()], [])).unique()
   return ({ key: value for key, value in start_activities.items() if key in unique_activities },
           { key: value for key, value in end_activities.items() if key in unique_activities })
 
-# Validations
 
-def validate_necessary_pandas_columns(df: pd.DataFrame, columns: list[str] | str):
+def filter_with_unique_activities(dfg: dict, activities: list[str]) -> tuple[dict, dict]:
   """
-    Raise an AttributeValidation error if the column(s) are not in the pandas DataFrame
+    Filter a dfg activities/nodes and edges
   """
-  match type(columns):
-    case builtins.str:
-      if not columns in df.columns:
-        AttributeValidation(f'"{columns}" is not in {df.columns.tolist()}')
-    case builtins.list:
-      columns_difference = set(columns).difference(set(df.columns))
-      if not len(columns_difference) == 0:
-        AttributeValidation(f'"{columns_difference}" are not in {df.columns.tolist()}')
-
-class AttributeValidation(Exception):
-  def __init__(self, message, errors):            
-    super().__init__(message)
-    self.errors = errors
+  new_dfg = {}
+  new_dfg['connections'] = { key: value for key, value in dfg['connections'].items() 
+                            if key[0] in activities and key[1] in activities }
+  new_dfg['activities'] = { key: value for key, value in dfg['activities'].items()
+                            if key in activities }
+  return new_dfg
