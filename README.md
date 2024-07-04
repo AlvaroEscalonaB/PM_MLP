@@ -60,3 +60,8 @@ this is for track new packages added
 - `pm_pd_utils.py`: For functions to handle event log shaped dataframe, also for dfg
 
 - `dfg_filtering.py`: To filter dfg and dataframes generated from `pm4py` or `mpdfg` packages.
+
+- `plot_utils.py`: Make plots with seaborn and plotly
+  - `plot_process_time`: Plot activity count per range (this take the initial timestamp and plot according to that date) truncated to the previous time designated (this can be 10, 15, 20, 30 mins or 1 hour)
+  - `plot_pareto`: Plot a pareto plot where the 80% is highlighted and activities are sorted according to time or frequency
+  - `plot_timeday`: Plot the distribution of the ocurrence of an activity during the day
