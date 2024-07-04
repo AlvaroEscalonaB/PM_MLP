@@ -1,5 +1,6 @@
 import pm4py
 import pandas as pd
+import builtins
 from typing import List, Dict
 from pm4py.visualization.dfg import visualizer as dfg_visualization
 from pm4py.algo.discovery.dfg import algorithm as dfg_discovery
@@ -7,7 +8,7 @@ from collections import Counter
 from typing import Tuple
 from pm4py.objects.log.obj import EventLog, Trace
 from custom_errors import PandasError, ArgumentError, ValidationError, AttributeValidation, validate_necessary_pandas_columns
-import builtins
+from datetime import datetime
 
 
 def trimmed_mean(df: pd.DataFrame, col: str, trim_value: float = 0.05, only_upper: bool = True) -> pd.DataFrame:
@@ -102,3 +103,13 @@ def squeeze_consecutive_activities(df_log: pd.DataFrame, extra_columns: list[str
   }).reset_index(drop=True)
 
   return df_squeezed
+
+
+def find_valid_datetime_range(df_1: pd.DataFrame, df_2: pd.DataFrame) -> tuple[datetime, datetime]:
+  """
+    Find the common window time that both datasets have information
+  """
+  low_threshold_datetime = max(df_1['timestamp'].min(), df_2['timestamp'].min())
+  high_threshold_datetime = min(df_1['timestamp_end'].max(), df_2['timestamp_end'].max())
+
+  return pd.to_datetime(low_threshold_datetime), pd.to_datetime(high_threshold_datetime)
